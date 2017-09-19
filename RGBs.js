@@ -11,6 +11,8 @@ var colorDisplay = document.getElementById("colorDisplay");
 colorDisplay.textContent = pickedColor;
 //select the message element
 var messageDisplay = document.querySelector("#message");
+//select the h1 in the document
+var h1 = document.querySelector("h1");
 
 //for each of the squares, give it a color
 for (var i = 0; i < squares.length; i++) {
@@ -26,6 +28,8 @@ for (var i = 0; i < squares.length; i++) {
             messageDisplay.textContent = "Correct!";
             //change all the squares to the picked color
             changeColors(clickedColor);
+            //change the h1 background
+            h1.style.background = pickedColor;
         } else {
             //make the wrong one have same color of the background
             this.style.background = "#232323";
