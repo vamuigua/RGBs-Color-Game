@@ -28,7 +28,8 @@ for (var i = 0; i < squares.length; i++) {
         if (clickedColor === pickedColor) {
             alert("Correct!");
         } else {
-            alert("WRONG!!!");
+            //make the wrong one have same color of the background
+            this.style.background = "#232323";
         }
     });
 }
