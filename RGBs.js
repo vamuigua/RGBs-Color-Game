@@ -8,6 +8,8 @@ var squares = document.querySelectorAll(".square");
 var pickedColor = pickColor();
 //select the colorDisplay element
 var colorDisplay = document.getElementById("colorDisplay");
+//display color in the doc
+colorDisplay.textContent = pickedColor;
 //select the message element
 var messageDisplay = document.querySelector("#message");
 //select the h1 in the document
@@ -77,14 +79,13 @@ resetButton.addEventListener("click", function() {
         squares[i].style.background = colors[i];
     }
     //change the h1 background
-    h1.style.background = "#232323";
-})
+    h1.style.background = "steelblue";
+});
 
 //for each of the squares, give it a color
 for (var i = 0; i < squares.length; i++) {
     //add initial colors to squares
     squares[i].style.background = colors[i];
-
     //add click listeners to squares
     squares[i].addEventListener("click", function() {
         //grab color of clicked square
