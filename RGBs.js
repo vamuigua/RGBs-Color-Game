@@ -14,6 +14,24 @@ var messageDisplay = document.querySelector("#message");
 //select the h1 in the document
 var h1 = document.querySelector("h1");
 
+//reset button selector
+var resetButton = document.querySelector("#reset");
+//event listener for the resetbutton
+resetButton.addEventListener("click", function() {
+    //generate all new colors
+    colors = generateRandomColors(6);
+    //pick new random color from array
+    pickedColor = pickColor();
+    //change colorDisplay to match picked color
+    colorDisplay.textContent = pickedColor;
+    //change colors of squares
+    for (var i = 0; i < squares.length; i++) {
+        squares[i].style.background = colors[i];
+    }
+    //change the h1 background
+    h1.style.background = "#232323"
+})
+
 //for each of the squares, give it a color
 for (var i = 0; i < squares.length; i++) {
     //add initial colors to squares
@@ -26,7 +44,8 @@ for (var i = 0; i < squares.length; i++) {
         //compare color of pickedColor
         if (clickedColor === pickedColor) {
             messageDisplay.textContent = "Correct!";
-            //change all the squares to the picked color
+            resetButton.textContent = "Play Again?"
+                //change all the squares to the picked color
             changeColors(clickedColor);
             //change the h1 background
             h1.style.background = pickedColor;
