@@ -16,70 +16,102 @@ var messageDisplay = document.querySelector("#message");
 var h1 = document.querySelector("h1");
 //reset button selector
 var resetButton = document.querySelector("#reset");
-//select easyBtn
-var easyBtn = document.querySelector("#easyBtn");
-//select hardBtn
-var hardBtn = document.querySelector("#hardBtn");
+//select modeButtons
+var modeButtons = document.querySelectorAll(".mode");
 
-//easyBtn eventlistener
-easyBtn.addEventListener("click", function() {
-    easyBtn.classList.add("selected");
-    hardBtn.classList.remove("selected");
-    //number of squares to display
-    numSquares = 3;
-    //generate 3 new colors
-    colors = generateRandomColors(numSquares);
-    //pick color
-    pickedColor = pickColor();
-    //display picked color
-    colorDisplay.textContent = pickedColor;
-    //give squares new colors
-    for (var i = 0; i < squares.length; i++) {
-        //take all 3 colors generated and display them
-        if (colors[i]) {
-            squares[i].style.background = colors[i];
-        } else {
-            //last 3 squares are not displayed
-            squares[i].style.display = "none";
-        }
-    }
-});
+//check which mode the player has set (EASY / HARD)
+for (var i = 0; i < modeButtons.length; i++) {
+    modeButtons[i].addEventListener("click", function() {
+        //remove the class selected
+        modeButtons[0].classList.remove("selected");
+        modeButtons[1].classList.remove("selected");
+        //add the class seleced
+        this.classList.add("selected");
+        //check which mode is choosen and give correct num of squares
+        this.textContent === "Easy" ? numSquares = 3 : numSquares = 6;
+        //reset the game
+        reset();
+    });
+}
 
-//hardBtn eventlistener
-hardBtn.addEventListener("click", function() {
-    hardBtn.classList.add("selected");
-    easyBtn.classList.remove("selected");
-    numSquares = 6;
-    //generate 6 new colors
-    colors = generateRandomColors(numSquares);
-    //pick color
-    pickedColor = pickColor();
-    //display picked color
-    colorDisplay.textContent = pickedColor;
-    //give squares new colors
-    for (var i = 0; i < squares.length; i++) {
-        //take all 3 colors generated and display them
-        squares[i].style.background = colors[i];
-        //let all squares have display of block
-        squares[i].style.display = "block";
-    }
-});
-
-
-//event listener for the resetbutton
-resetButton.addEventListener("click", function() {
+//function to reset the game
+function reset() {
     //generate all new colors
     colors = generateRandomColors(numSquares);
     //pick new random color from array
     pickedColor = pickColor();
     //change colorDisplay to match picked color
     colorDisplay.textContent = pickedColor;
+    //button to show new colors when player wins
+    resetButton.textContent = "New Colors ";
+    //message display to be empty
+    messageDisplay.textContent = "";
     //change colors of squares
     for (var i = 0; i < squares.length; i++) {
-        squares[i].style.background = colors[i];
+        //if present give square a new color
+        if (colors[i]) {
+            //bt first display all colors
+            squares[i].style.display = "block";
+            squares[i].style.background = colors[i];
+        } else {
+            //else don't display them
+            squares[i].style.display = "none";
+        }
     }
     //change the h1 background
     h1.style.background = "steelblue";
+}
+
+
+//easyBtn eventlistener
+// easyBtn.addEventListener("click", function() {
+//     easyBtn.classList.add("selected");
+//     hardBtn.classList.remove("selected");
+//     //number of squares to display
+//     numSquares = 3;
+//     //generate 3 new colors
+//     colors = generateRandomColors(numSquares);
+//     //pick color
+//     pickedColor = pickColor();
+//     //display picked color
+//     colorDisplay.textContent = pickedColor;
+//     //give squares new colors
+//     for (var i = 0; i < squares.length; i++) {
+//         //take all 3 colors generated and display them
+//         if (colors[i]) {
+//             squares[i].style.background = colors[i];
+//         } else {
+//             //last 3 squares are not displayed
+//             squares[i].style.display = "none";
+//         }
+//     }
+// });
+
+// //hardBtn eventlistener
+// hardBtn.addEventListener("click", function() {
+//     hardBtn.classList.add("selected");
+//     easyBtn.classList.remove("selected");
+//     numSquares = 6;
+//     //generate 6 new colors
+//     colors = generateRandomColors(numSquares);
+//     //pick color
+//     pickedColor = pickColor();
+//     //display picked color
+//     colorDisplay.textContent = pickedColor;
+//     //give squares new colors
+//     for (var i = 0; i < squares.length; i++) {
+//         //take all 3 colors generated and display them
+//         squares[i].style.background = colors[i];
+//         //let all squares have display of block
+//         squares[i].style.display = "block";
+//     }
+// });
+
+
+//event listener for the resetbutton
+resetButton.addEventListener("click", function() {
+    //reset the game when the reset game is clicked
+    reset();
 });
 
 //for each of the squares, give it a color
