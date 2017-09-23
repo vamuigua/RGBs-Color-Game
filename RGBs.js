@@ -1,11 +1,11 @@
 //Number of colors to generate by default
 var numSquares = 6;
 //Generated Array of random colors
-var colors = generateRandomColors(numSquares);
+var colors = [];
+//pick a random color
+var pickedColor;
 //select all squares in the container
 var squares = document.querySelectorAll(".square");
-//pick a random color
-var pickedColor = pickColor();
 //select the colorDisplay element
 var colorDisplay = document.getElementById("colorDisplay");
 //display color in the doc
@@ -19,19 +19,60 @@ var resetButton = document.querySelector("#reset");
 //select modeButtons
 var modeButtons = document.querySelectorAll(".mode");
 
-//check which mode the player has set (EASY / HARD)
-for (var i = 0; i < modeButtons.length; i++) {
-    modeButtons[i].addEventListener("click", function() {
-        //remove the class selected
-        modeButtons[0].classList.remove("selected");
-        modeButtons[1].classList.remove("selected");
-        //add the class seleced
-        this.classList.add("selected");
-        //check which mode is choosen and give correct num of squares
-        this.textContent === "Easy" ? numSquares = 3 : numSquares = 6;
-        //reset the game
-        reset();
-    });
+//function to run at the beginning
+init();
+
+function init() {
+    //MODE BUTTON EVENT LISTENERS
+    setupModeButtons();
+    //setupSquares 
+    setupSquares();
+    //resets the game
+    reset();
+}
+
+
+//setupModeButtons function
+function setupModeButtons() {
+    //check which mode the player has set (EASY / HARD)
+    for (var i = 0; i < modeButtons.length; i++) {
+        modeButtons[i].addEventListener("click", function() {
+            //remove the class selected
+            modeButtons[0].classList.remove("selected");
+            modeButtons[1].classList.remove("selected");
+            //add the class seleced
+            this.classList.add("selected");
+            //check which mode is choosen and give correct num of squares
+            this.textContent === "Easy" ? numSquares = 3 : numSquares = 6;
+            //reset the game
+            reset();
+        });
+    }
+}
+
+//setupSquare buttons
+function setupSquares() {
+    //for each of the squares, give it a color
+    for (var i = 0; i < squares.length; i++) {
+        //add click listeners to squares
+        squares[i].addEventListener("click", function() {
+            //grab color of clicked square
+            var clickedColor = this.style.background;
+            //compare color of pickedColor
+            if (clickedColor === pickedColor) {
+                messageDisplay.textContent = "Correct!";
+                resetButton.textContent = "Play Again?";
+                //change all the squares to the picked color
+                changeColors(clickedColor);
+                //change the h1 background
+                h1.style.background = pickedColor;
+            } else {
+                //make the wrong one have same color of the background
+                this.style.background = "#232323";
+                messageDisplay.textContent = "Try Again!";
+            }
+        });
+    }
 }
 
 //function to reset the game
@@ -68,29 +109,6 @@ resetButton.addEventListener("click", function() {
     reset();
 });
 
-//for each of the squares, give it a color
-for (var i = 0; i < squares.length; i++) {
-    //add initial colors to squares
-    squares[i].style.background = colors[i];
-    //add click listeners to squares
-    squares[i].addEventListener("click", function() {
-        //grab color of clicked square
-        var clickedColor = this.style.background;
-        //compare color of pickedColor
-        if (clickedColor === pickedColor) {
-            messageDisplay.textContent = "Correct!";
-            resetButton.textContent = "Play Again?"
-                //change all the squares to the picked color
-            changeColors(clickedColor);
-            //change the h1 background
-            h1.style.background = pickedColor;
-        } else {
-            //make the wrong one have same color of the background
-            this.style.background = "#232323";
-            messageDisplay.textContent = "Try Again!";
-        }
-    });
-}
 
 //Change colors
 function changeColors(color) {
