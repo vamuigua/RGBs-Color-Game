@@ -5,20 +5,31 @@ body {
 }
 
 .square {
-    width: 30%;
+    width: 100%;
     background-color: purple;
-    padding-bottom: 30%;
-    float: left;
+    border: 2px solid rgba(255, 255, 255, 0.5);
     margin: 1.66%;
     border-radius: 45%;
-    transition: background-color 0.6s;
+    transition: background-color 0.5s;
     --webkit-transition:background-color 0.6s;
     --moz-transition:background-color 0.6s;
     --ms-transition:background-color 0.6s;
     --o-transition:background-color 0.6s;
 }
 
-#container {
+.square:after {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+}
+
+.square:hover{
+    cursor: pointer;
+    border: 5px solid white;
+    transition: border 0.5s;
+}
+
+#wrapper {
     margin: 20px auto;
     max-width: 600px;
 }
@@ -27,52 +38,60 @@ h1 {
     text-align: center;
     color: white;
     line-height: 1.1;
-    background: steelblue;
     margin: 0;
     font-weight: normal;
     text-transform: uppercase;
     padding: 20px 0;
 }
 
+.cool-gradient {
+    background: #00B4DB;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #0083B0, #00B4DB);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #0083B0, #00B4DB);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
 #colorDisplay {
-    font-size: 50px;
+    font-size: 20px;
+}
+
+.stripe {
+    background-color: #232323;
+}
+
+.stripe-correct{
+    color: white;
+    background-color: #408939;
+    font-size:20px;
+    text-align: center;
+}
+
+.stripe-wrong {
+    color: white;
+    background-color: #C93933;
+    font-size:20px;
+    text-align: center;
 }
 
 #message {
+    background-color: rgb(35, 35, 35, 0.5);
+    font-size: 30px;
+    padding: 0 80px;
     display: inline-block;
-    width: 20%;
 }
 
-#stripe {
-    background-color: white;
-    height: 30px;
-    text-align: center;
-    color: black;
-}
-
-.selected {
-    color: white;
-    background-color: steelblue;
+#reset{
+    margin:10px 10px 10px 0;
 }
 
 button {
-    border: none;
-    background: none;
     text-transform: uppercase;
-    height: 100%;
-    font-weight: 700;
-    color: steelblue;
     letter-spacing: 1px;
-    font-size: inherit;
-    transition: all 0.3s;
-    --webkit-transition:all 0.3s;
-    --moz-transition:all 0.3s;
-    --ms-transition:all 0.3s;
-    --o-transition:all 0.3s;
     outline: none;
 }
 
-button:hover {
-    color: white;
-    background-color: steelblue;
+button:hover{
+    cursor: pointer;
 }

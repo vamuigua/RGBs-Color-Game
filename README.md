@@ -8,18 +8,23 @@ The RGBs Game is a fun, enjoyable & endless PWA game that tests your skills on m
 
 ## How play the game
 
-- Select 'Easy' or 'Hard' to generate new colors
-- Click on the correct circle that matches the color code
-- When you win or lose, click the 'New colors' button to generate new color for your difficulty level
+- Select 'Easy', 'Medium' or 'Hard' mode
+- This will generate new random colors for the difficulty you choose
+- The correct rgb color code is shown on the top-left of the page
+- Click on the correct circle that matches the correct rgb color code
+- When you win or lose, click the 'New colors' button to generate new colors for your difficulty level
 - Have FUN 🎉
 
-![8-bit dancing guy](https://media.giphy.com/media/aiE3JQU3vLqTK/giphy.gif)
+<p align="center">
+  <img src="assets/images/nyan-cat.gif">
+</p>
 
 ## Built using
 
 - HTML
 - CSS
 - Vanilla Javascript
+- Progressier
 
 ## Authors
 

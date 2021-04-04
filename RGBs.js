@@ -1,5 +1,5 @@
 // number of colors to generate by default
-var numSquares = 9;
+var numSquares = 6;
 // stores the generated random colors
 var colors = [];
 // stores the correct color
@@ -8,8 +8,6 @@ var pickedColor;
 var squares = document.querySelectorAll(".square");
 //select the colorDisplay element
 var colorDisplay = document.getElementById("colorDisplay");
-//display rgb color in the document window
-colorDisplay.textContent = pickedColor;
 // select the message element
 var messageDisplay = document.querySelector("#message");
 // select the h1 element
@@ -19,8 +17,13 @@ var resetButton = document.querySelector("#reset");
 //select all mode buttons
 var modeButtons = document.querySelectorAll(".mode");
 
+var correctMsg = document.querySelector("#correctMsg");
+var wrongMsg = document.querySelector("#wrongMsg");
+
 //function to run at the beginning
-init();
+$(document).ready(function () {
+	init();
+});
 
 function init() {
 	setupModeButtons();
@@ -33,13 +36,13 @@ function setupModeButtons() {
 	// check which mode the player has set (EASY / HARD)
 	for (var i = 0; i < modeButtons.length; i++) {
 		modeButtons[i].addEventListener("click", function () {
-			// remove the 'selected' class from each mode button
-			modeButtons[0].classList.remove("selected");
-			modeButtons[1].classList.remove("selected");
-			modeButtons[2].classList.remove("selected");
+			// remove the 'active' class from each mode button
+			modeButtons[0].classList.remove("active");
+			modeButtons[1].classList.remove("active");
+			modeButtons[2].classList.remove("active");
 
-			//add the 'selected' class to the clicked button
-			this.classList.add("selected");
+			//add the 'active' class to the clicked button
+			this.classList.add("active");
 
 			// check which mode of the clicked button & give correct num of squares
 			switch (this.textContent) {
@@ -67,6 +70,9 @@ function setupSquares() {
 			// grab bg color of clicked square
 			var clickedColor = this.style.background;
 			if (clickedColor === pickedColor) {
+				messageDisplay.parentElement.className = "";
+				messageDisplay.parentElement.classList.add("stripe-correct");
+
 				messageDisplay.textContent = "Correct!";
 				resetButton.textContent = "Play Again?";
 				// change bg color of all squares to the picked color
@@ -74,7 +80,10 @@ function setupSquares() {
 				h1.style.background = pickedColor;
 			} else {
 				// make the selected square have same color of the bg
-				this.style.background = "#232323"; // dark greyish color
+				this.style.background = "#232323"; // dark greyish colory
+				this.style.visibility = "hidden";
+				messageDisplay.parentElement.className = "";
+				messageDisplay.parentElement.classList.add("stripe-wrong");
 				messageDisplay.textContent = "Try Again!";
 			}
 		});
@@ -88,17 +97,20 @@ function reset() {
 	// pick new random color from array (The correct color)
 	pickedColor = pickColor();
 	// change colorDisplay text to match picked color
-	colorDisplay.textContent = pickedColor;
+	colorDisplay.textContent = "Find: " + pickedColor;
 	// button to show new colors on reset
 	resetButton.textContent = "New Colors";
 	// message display to be empty
 	messageDisplay.textContent = "";
+	messageDisplay.parentElement.className = "";
+	messageDisplay.parentElement.classList.add("stripe");
 
 	// change colors of squares & display style
 	for (var i = 0; i < squares.length; i++) {
 		// if color[i] exists,
 		if (colors[i]) {
 			// make square[i] visible
+			squares[i].style.visibility = "visible";
 			squares[i].style.display = "block";
 			// then add bg color to square[i]
 			squares[i].style.background = colors[i];
@@ -109,7 +121,8 @@ function reset() {
 	}
 
 	// change the h1 background color
-	h1.style.background = "steelblue";
+	h1.removeAttribute("style");
+	h1.classList.add("cool-gradient");
 }
 
 //reset the game when the 'Play again' or 'New Colors' button is clicked
@@ -120,6 +133,7 @@ resetButton.addEventListener("click", function () {
 //Loop through all squares to match the correct color
 function changeColors(color) {
 	for (var i = 0; i < squares.length; i++) {
+		squares[i].style.visibility = "visible";
 		squares[i].style.background = color;
 	}
 }

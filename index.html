@@ -1,9 +1,17 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
 	<title>The RGBs Game</title>
-	<link rel="icon" href="assets/images/RGB.png">
+	<link rel="icon" href="assets/images/logo.png">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+		integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<!-- Main CSS -->
 	<link rel="stylesheet" type="text/css" href="RGBs.css">
 	<!-- Google Font -->
 	<link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
@@ -12,29 +20,99 @@
 </head>
 
 <body>
-	<h1>
-		The RBGs Game
-		<br>
-		<span id="colorDisplay"></span>
-	</h1>
-	<div id="stripe">
-		<button id="reset">New Colors</button>
-		<span id="message"></span>
-		<button class="mode">Easy</button>
-		<button class="mode">Medium</button>
-		<button class="mode selected">Hard</button>
+	<div class="sticky-top">
+		<div class="game-header">
+			<h1>The RBGs Game</h1>
+		</div>
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<div class="navbar-brand d-flex justify-content-between">
+				<span id="colorDisplay"></span>
+			</div>
+
+			<!-- Toggle Button -->
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
+				aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<!-- Items in Navbar -->
+			<div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+				<!-- Elememts to the Left -->
+				<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+					<li class="nav-item">
+					</li>
+				</ul>
+
+				<button type="button" class="btn btn-info" id="reset">New Colors</button>
+
+				<!-- Elements to the Right -->
+				<div class="btn-group" role="group" aria-label="modes">
+					<button type="button" class="btn btn-outline-light mode">Easy</button>
+					<button type="button" class="btn btn-outline-light mode active">Medium</button>
+					<button type="button" class="btn btn-outline-light mode">Hard</button>
+				</div>
+
+			</div>
+		</nav>
+		<!-- Message Bar -->
+		<div class="stripe">
+			<span id="message"></span>
+		</div>
 	</div>
-	<div id="container">
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
-		<div class="square"></div>
+	<!-- Sqaures -->
+	<div class="container">
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+				<div class="col-4 col-md-4 d-flex justify-content-center">
+					<div class="square"></div>
+				</div>
+			</div>
+		</div>
 	</div>
+
+	<div class="fixed-bottom" style="margin-bottom:20px">
+		<a class="btn btn-info btn-lg" href="https://github.com/vamuigua/RGBs-Color-Game" role="button" target="_blank"
+			style="margin-left:-10px">
+			Created by Victor Allen
+		</a>
+	</div>
+	<!-- JQuery -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+	</script>
+	<!-- Bootstrap JS Bundle -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous">
+	</script>
+	<!-- Main JS -->
 	<script type="text/javascript" src="RGBs.js"></script>
 </body>
 
