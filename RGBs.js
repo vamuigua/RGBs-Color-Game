@@ -20,6 +20,10 @@ var modeButtons = document.querySelectorAll(".mode");
 var correctMsg = document.querySelector("#correctMsg");
 var wrongMsg = document.querySelector("#wrongMsg");
 
+var resetAudio = document.getElementById("resetAudio");
+var positiveAudio = document.getElementById("positiveAudio");
+var negativeAudio = document.getElementById("negativeAudio");
+
 //function to run at the beginning
 init();
 
@@ -71,6 +75,7 @@ function setupSquares() {
 				messageDisplay.parentElement.className = "";
 				messageDisplay.parentElement.classList.add("stripe-correct");
 				messageDisplay.textContent = "Correct!";
+				positiveAudio.play();
 				resetButton.textContent = "Play Again?";
 				animateCSS("#message", "bounceIn");
 				// change bg color of all squares to the picked color
@@ -83,6 +88,7 @@ function setupSquares() {
 				messageDisplay.parentElement.className = "";
 				messageDisplay.parentElement.classList.add("stripe-wrong");
 				messageDisplay.textContent = "Try Again!";
+				negativeAudio.play();
 				// Play some animations
 				animateCSS("#message", "headShake").then((msg) => {
 					animateCSS(".stripe-wrong", "fadeOut").then((msg) => {
@@ -98,6 +104,7 @@ function setupSquares() {
 
 // Resets the game
 function reset() {
+	resetAudio.play();
 	// generate all new colors for 'numSquares'
 	colors = generateRandomColors(numSquares);
 	// pick new random color from array (The correct color)
