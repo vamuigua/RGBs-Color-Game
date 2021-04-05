@@ -21,9 +21,7 @@ var correctMsg = document.querySelector("#correctMsg");
 var wrongMsg = document.querySelector("#wrongMsg");
 
 //function to run at the beginning
-$(document).ready(function () {
-	init();
-});
+init();
 
 function init() {
 	setupModeButtons();
@@ -72,9 +70,9 @@ function setupSquares() {
 			if (clickedColor === pickedColor) {
 				messageDisplay.parentElement.className = "";
 				messageDisplay.parentElement.classList.add("stripe-correct");
-
 				messageDisplay.textContent = "Correct!";
 				resetButton.textContent = "Play Again?";
+				animateCSS("#message", "bounceIn");
 				// change bg color of all squares to the picked color
 				changeColors(clickedColor);
 				h1.style.background = pickedColor;
@@ -85,6 +83,14 @@ function setupSquares() {
 				messageDisplay.parentElement.className = "";
 				messageDisplay.parentElement.classList.add("stripe-wrong");
 				messageDisplay.textContent = "Try Again!";
+				// Play some animations
+				animateCSS("#message", "headShake").then((msg) => {
+					animateCSS(".stripe-wrong", "fadeOut").then((msg) => {
+						messageDisplay.textContent = "";
+						messageDisplay.parentElement.className = "";
+						messageDisplay.parentElement.classList.add("stripe");
+					});
+				});
 			}
 		});
 	}
@@ -98,6 +104,9 @@ function reset() {
 	pickedColor = pickColor();
 	// change colorDisplay text to match picked color
 	colorDisplay.textContent = "Find: " + pickedColor;
+	animateCSS("#colorDisplay", "backInLeft").then((msg) => {
+		animateCSS("#colorDisplay", "flash");
+	});
 	// button to show new colors on reset
 	resetButton.textContent = "New Colors";
 	// message display to be empty

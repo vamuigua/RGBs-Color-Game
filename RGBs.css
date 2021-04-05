@@ -11,10 +11,10 @@ body {
     margin: 1.66%;
     border-radius: 45%;
     transition: background-color 0.5s;
-    --webkit-transition:background-color 0.6s;
-    --moz-transition:background-color 0.6s;
-    --ms-transition:background-color 0.6s;
-    --o-transition:background-color 0.6s;
+    -webkit-transition:background-color 0.6s;
+    -moz-transition:background-color 0.6s;
+    -ms-transition:background-color 0.6s;
+    -o-transition:background-color 0.6s;
 }
 
 .square:after {
@@ -83,7 +83,13 @@ h1 {
 }
 
 #reset{
-    margin:10px 10px 10px 0;
+    margin:10px 0;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0rem;
+    border-bottom-right-radius: 0rem;
+    border-bottom-left-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-right: none;
 }
 
 button {
