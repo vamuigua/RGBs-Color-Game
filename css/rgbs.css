@@ -1,0 +1,1241 @@
+/* ==========================================================================
+   The RGBs Game
+   Hand-written — no framework. The UI is deliberately restrained: the colors
+   being judged are the only saturated thing on screen that matters, so chrome
+   never competes with them.
+   ========================================================================== */
+
+:root {
+	--bg: #0B0D12;
+	--bg-wash: #151A24;
+	--surface: rgba(255, 255, 255, .05);
+	--surface-2: rgba(255, 255, 255, .08);
+	--border: rgba(255, 255, 255, .08);
+	--border-strong: rgba(255, 255, 255, .16);
+
+	--text: #F2F4F8;
+	--text-dim: rgba(242, 244, 248, .55);
+	--text-faint: rgba(242, 244, 248, .32);
+
+	/* The RGB triad is the brand. Used only on the logo, the primary CTA and
+	   success/error states. */
+	--r: #FF3B5C;
+	--g: #2BD97C;
+	--b: #4D8DFF;
+	--success: var(--g);
+	--danger: var(--r);
+
+	--radius-card: 20px;
+	--radius-tile: 26%;
+	--radius-pill: 999px;
+
+	--gap: clamp(.75rem, 3vw, 1.25rem);
+	--pad: clamp(1rem, 4vw, 1.75rem);
+
+	--font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+	--font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, monospace;
+
+	--safe-t: env(safe-area-inset-top, 0px);
+	--safe-b: env(safe-area-inset-bottom, 0px);
+	--safe-l: env(safe-area-inset-left, 0px);
+	--safe-r: env(safe-area-inset-right, 0px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Several components set an explicit `display`, which beats the UA rule for
+   [hidden]. Without this the attribute silently does nothing. */
+[hidden] { display: none !important; }
+
+html, body {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-display);
+	font-weight: 500;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+	overscroll-behavior: none;
+	/* Tiles are the only tap targets that matter; stop iOS double-tap zoom. */
+	touch-action: manipulation;
+}
+
+/* A faint wash so the near-black background is not completely flat. */
+.bg-wash {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background:
+		radial-gradient(90vmax 70vmax at 50% -10%, var(--bg-wash), transparent 70%),
+		radial-gradient(60vmax 60vmax at 110% 110%, rgba(77, 141, 255, .07), transparent 65%);
+	pointer-events: none;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px; height: 1px;
+	margin: -1px; padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus { outline: none; }
+:focus-visible {
+	outline: 3px solid var(--text);
+	outline-offset: 3px;
+	border-radius: 6px;
+}
+
+/* ==========================================================================
+   Screens
+   ========================================================================== */
+
+.screen {
+	min-height: 100dvh;
+	padding:
+		calc(var(--pad) + var(--safe-t))
+		calc(var(--pad) + var(--safe-r))
+		calc(var(--pad) + var(--safe-b))
+		calc(var(--pad) + var(--safe-l));
+	display: flex;
+	flex-direction: column;
+}
+.screen[hidden] { display: none; }
+
+/* ==========================================================================
+   Start screen
+   ========================================================================== */
+
+.start__inner, .over__inner {
+	margin: auto;
+	width: 100%;
+	max-width: 30rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--gap);
+	text-align: center;
+	animation: rise .4s cubic-bezier(.2, .9, .3, 1) both;
+}
+
+.logo { display: block; }
+.logo circle { mix-blend-mode: screen; }
+.logo--lg { width: clamp(72px, 22vw, 104px); height: auto; }
+.logo--sm { width: 26px; height: 26px; flex: none; }
+.logo__spin { transform-origin: 24px 25px; animation: spin 18s linear infinite; }
+
+.start__title {
+	margin: 0;
+	font-size: clamp(1.75rem, 8vw, 2.75rem);
+	font-weight: 700;
+	letter-spacing: .04em;
+	line-height: 1.05;
+}
+
+.start__tagline {
+	margin: 0;
+	color: var(--text-dim);
+	font-size: clamp(.9rem, 3.5vw, 1.05rem);
+	line-height: 1.5;
+}
+
+.start__best {
+	margin: 0;
+	color: var(--text-dim);
+	font-size: .8rem;
+	letter-spacing: .14em;
+}
+.start__best strong {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--text);
+	font-size: 1.05rem;
+	margin-left: .5rem;
+}
+
+.start__actions { display: flex; gap: .5rem; align-items: center; }
+
+/* ==========================================================================
+   Pills (mode + difficulty)
+   ========================================================================== */
+
+.pillset {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	width: 100%;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-pill);
+	backdrop-filter: blur(12px);
+}
+
+.pill {
+	flex: 1;
+	min-height: 44px;
+	padding: .5rem .25rem;
+	border: 0;
+	border-radius: var(--radius-pill);
+	background: transparent;
+	color: var(--text-dim);
+	font-size: clamp(.7rem, 3vw, .8rem);
+	font-weight: 700;
+	letter-spacing: .1em;
+	transition: background .18s ease, color .18s ease;
+}
+.pill:hover { color: var(--text); }
+.pill[aria-checked="true"] {
+	background: var(--surface-2);
+	color: var(--text);
+	box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.pillset__hint {
+	margin: -.35rem 0 0;
+	min-height: 1.1em;
+	color: var(--text-faint);
+	font-size: .75rem;
+	line-height: 1.4;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+	min-height: 48px;
+	padding: .75rem 1.5rem;
+	border: 1px solid transparent;
+	border-radius: 14px;
+	font-weight: 700;
+	letter-spacing: .1em;
+	transition: transform .12s ease, filter .18s ease, background .18s ease;
+}
+.btn:active { transform: scale(.97); }
+
+.btn--primary {
+	width: 100%;
+	color: #0B0D12;
+	background: linear-gradient(100deg, var(--r), var(--b) 55%, var(--g));
+	box-shadow: 0 8px 28px -12px var(--b);
+}
+.btn--primary:hover { filter: brightness(1.12); }
+
+.btn--play { font-size: 1.05rem; letter-spacing: .18em; }
+
+.btn--ghost {
+	width: 100%;
+	background: var(--surface);
+	border-color: var(--border);
+	color: var(--text-dim);
+}
+.btn--ghost:hover { background: var(--surface-2); color: var(--text); }
+
+.btn--peek {
+	width: auto;
+	min-height: 40px;
+	padding: .35rem .95rem;
+	font-size: .75rem;
+	display: inline-flex;
+	align-items: center;
+	gap: .45rem;
+}
+.btn--peek[disabled] { opacity: .35; cursor: default; }
+.btn--peek[disabled]:active { transform: none; }
+.btn__eye { font-size: .85rem; line-height: 1; filter: grayscale(1); }
+.btn__note {
+	color: var(--text-faint);
+	font-size: .62rem;
+	letter-spacing: .03em;
+	text-transform: none;
+	font-weight: 500;
+}
+
+/* One-time nudge the first time PEEK is available in a real game. */
+.btn--peek[data-hint="true"] {
+	border-color: rgba(255, 176, 58, .5);
+	box-shadow: 0 0 0 0 rgba(255, 176, 58, .5);
+	animation: peek-nudge 2s ease 3;
+}
+
+.linkbtn {
+	padding: .1rem .2rem;
+	background: none;
+	border: 0;
+	color: var(--text-faint);
+	font-size: .68rem;
+	letter-spacing: .12em;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.linkbtn:hover { color: var(--text); }
+
+.iconbtn {
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0 .65rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	color: var(--text-dim);
+	font-size: .75rem;
+	font-weight: 700;
+	letter-spacing: .08em;
+	transition: background .18s ease, color .18s ease, transform .12s ease;
+}
+.iconbtn:hover { background: var(--surface-2); color: var(--text); }
+.iconbtn:active { transform: scale(.94); }
+.iconbtn--wide { padding: 0 1rem; }
+.iconbtn[aria-pressed="false"] .iconbtn__glyph { opacity: .4; }
+
+/* ==========================================================================
+   HUD
+   ========================================================================== */
+
+.screen--play { gap: var(--gap); padding-top: calc(.75rem + var(--safe-t)); }
+
+.hud {
+	display: flex;
+	flex-direction: column;
+	gap: .35rem;
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto;
+}
+
+.hud__row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.hud__row--sub { min-height: 1.4rem; }
+.hud__group { display: flex; align-items: center; gap: .6rem; }
+.hud__group--end { gap: 1rem; }
+
+.hud__lvl { font-size: .7rem; letter-spacing: .12em; color: var(--text-dim); }
+.hud__lvl strong {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--text);
+	font-size: .9rem;
+	margin-left: .25rem;
+}
+
+.hud__lives { display: flex; gap: .2rem; font-size: .85rem; line-height: 1; }
+.hud__life { color: var(--danger); transition: opacity .3s ease, transform .3s ease; }
+.hud__life--spent { opacity: .22; transform: scale(.82); }
+
+.hud__stat { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+.hud__key { font-size: .58rem; letter-spacing: .16em; color: var(--text-faint); }
+.hud__stat strong {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	font-size: 1.05rem;
+}
+
+.hud__streak, .hud__mult {
+	font-size: .75rem;
+	color: var(--text-faint);
+	transition: color .2s ease, opacity .2s ease;
+}
+.hud__streak strong { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.hud__streak[data-hot="true"] { color: #FFB03A; }
+.hud__mult { font-family: var(--font-mono); font-weight: 700; letter-spacing: .05em; }
+.hud__mult[data-hot="true"] { color: var(--g); }
+
+/* ==========================================================================
+   Timer
+   ========================================================================== */
+
+.timer {
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--surface);
+	overflow: hidden;
+}
+.timer[hidden] { display: none; }
+
+/* Driven by a CSS animation with a per-round duration, not a per-frame
+   width write — the main thread stays free for input. */
+.timer__bar {
+	height: 100%;
+	width: 100%;
+	transform-origin: left center;
+	border-radius: 2px;
+	background: linear-gradient(90deg, var(--g), #FFB03A 65%, var(--r));
+}
+.timer__bar--running { animation: drain linear forwards; }
+.timer--paused .timer__bar { animation-play-state: paused; }
+
+/* ==========================================================================
+   Target card
+   ========================================================================== */
+
+.target {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .6rem;
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto;
+}
+
+.target__label {
+	margin: 0;
+	font-size: .65rem;
+	letter-spacing: .22em;
+	color: var(--text-faint);
+}
+
+/* The color is hidden while guessing — the RGB numbers ARE the puzzle.
+   PEEK and the post-answer reveal both flood this card via --reveal. */
+.target__card {
+	position: relative;
+	width: 100%;
+	min-height: clamp(80px, 16vh, 108px);
+	display: grid;
+	place-items: center;
+	padding: 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	background: var(--surface);
+	backdrop-filter: blur(12px);
+	overflow: hidden;
+	transition: box-shadow .3s ease;
+}
+
+.target__card::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: var(--reveal, transparent);
+	opacity: 0;
+	transition: opacity .25s ease;
+}
+.target__card[data-revealed="true"]::before { opacity: 1; }
+.target__card[data-revealed="true"] {
+	box-shadow: 0 0 44px -10px var(--reveal, transparent);
+}
+
+.target__readout {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .25rem;
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--text);
+	transition: color .25s ease;
+}
+/* Once the card floods with the color, the numbers need contrasting ink. */
+.target__card[data-revealed="true"] .target__readout { color: var(--readout, var(--text)); }
+.target__rgb { font-size: clamp(1.05rem, 5vw, 1.5rem); font-weight: 700; letter-spacing: .02em; }
+.target__hex { font-size: .8rem; opacity: .65; letter-spacing: .12em; }
+
+/* Tinting the three numbers ties the value to the colour it describes. These
+   are lightened triad tints, not the raw brand colours, so they clear AA on
+   the glass card. On reveal the whole readout inherits contrasting ink. */
+.ch { font-weight: 700; }
+.ch--r { color: #FF8296; }
+.ch--g { color: #6BE6A6; }
+.ch--b { color: #8FB6FF; }
+.target__card[data-revealed="true"] .ch { color: inherit; }
+
+/* Channel bars: a redundant encoding of the numbers already printed above, so
+   they give no information advantage — just faster parsing. */
+.bars { display: flex; flex-direction: column; gap: 3px; width: min(11rem, 60%); margin-top: .5rem; }
+.bars[hidden] { display: none; }
+.bars__track {
+	display: block;
+	height: 4px;
+	border-radius: 2px;
+	background: rgba(255, 255, 255, .1);
+	overflow: hidden;
+}
+.bars__fill {
+	display: block;
+	height: 100%;
+	width: 0;
+	border-radius: 2px;
+	transition: width .25s ease;
+}
+.bars__fill--r { background: var(--r); }
+.bars__fill--g { background: var(--g); }
+.bars__fill--b { background: var(--b); }
+.target__card[data-revealed="true"] .bars__track { background: rgba(0, 0, 0, .22); }
+
+/* ==========================================================================
+   Feedback strip — the band between target and board
+   ========================================================================== */
+
+/* Reserves its own height so the board never shifts when a message appears,
+   and turns what used to be dead space into the thing that fills it. */
+.strip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: .5rem;
+	min-height: 1.75rem;
+	margin: 0;
+	width: 100%;
+	max-width: 34rem;
+	margin-inline: auto;
+	font-size: .8rem;
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-align: center;
+	color: var(--text-dim);
+}
+.strip:empty { min-height: 1.75rem; }
+.strip[data-tone="good"] { color: var(--success); }
+.strip[data-tone="bad"] { color: var(--danger); }
+.strip[data-tone="hot"] { color: #FFB03A; }
+.strip[data-anim="in"] { animation: strip-in .28s cubic-bezier(.2, .9, .3, 1) both; }
+
+/* Block, not flex: the coach line contains inline <b> tags, and the parent's
+   flex gap would space them out mid-sentence. */
+.strip--coach {
+	display: block;
+	font-weight: 500;
+	letter-spacing: .01em;
+	font-size: clamp(.85rem, 3.6vw, 1rem);
+	color: var(--text);
+	min-height: 2.5rem;
+	line-height: 1.4;
+	padding: .3rem 0;
+}
+.strip--coach b { color: var(--text); font-weight: 700; }
+
+/* The tutorial has no timer and a short card, so its content is centred as one
+   block rather than letting the board absorb all the slack. */
+.screen--learn { justify-content: center; }
+.screen--learn .board,
+.screen--learn .mixer,
+.screen--learn .sliders { margin-block: 0; }
+.screen--learn .play-actions { margin-top: .5rem; min-height: 48px; }
+
+/* ==========================================================================
+   Board
+   ========================================================================== */
+
+.board {
+	display: grid;
+	grid-template-columns: repeat(var(--cols, 3), 1fr);
+	gap: var(--gap);
+	width: 100%;
+	/* Tiles are square, so the board's height is width x rows/cols. Capping on
+	   width alone overflows a short window at 3 rows. --board-max-h is the
+	   leftover vertical space, measured in ui.js; --rows is set per round. */
+	max-width: min(34rem, calc(var(--board-max-h, 60dvh) * var(--cols, 3) / var(--rows, 3)));
+	margin: auto;
+}
+
+.tile {
+	position: relative;
+	aspect-ratio: 1;
+	min-height: 56px;
+	padding: 0;
+	border: 2px solid rgba(255, 255, 255, .28);
+	border-radius: var(--radius-tile);
+	background: var(--tile);
+	cursor: pointer;
+	animation: tile-in .26s cubic-bezier(.2, .9, .3, 1) both;
+	animation-delay: var(--delay, 0ms);
+	transition: transform .14s cubic-bezier(.2, .9, .3, 1),
+	            box-shadow .14s ease,
+	            opacity .3s ease;
+}
+
+@media (hover: hover) {
+	.tile:hover {
+		transform: translateY(-4px) scale(1.04);
+		box-shadow: 0 10px 30px -10px var(--tile), 0 0 0 3px rgba(255, 255, 255, .22);
+		z-index: 1;
+	}
+}
+.tile:active { transform: scale(.96); }
+
+.tile[data-state="dead"] {
+	opacity: .12;
+	transform: scale(.88);
+	pointer-events: none;
+	box-shadow: none;
+}
+
+.tile[data-state="win"] {
+	animation: tile-win .42s cubic-bezier(.2, .9, .3, 1) both;
+	z-index: 2;
+}
+.tile[data-state="miss"] { animation: tile-miss .32s ease both; }
+
+/* Marks the answer after a timeout, so the player still learns it. */
+.tile[data-state="show"] {
+	box-shadow: 0 0 0 3px var(--text), 0 0 36px -6px var(--tile);
+	z-index: 2;
+}
+
+.board[data-locked="true"] .tile { pointer-events: none; }
+
+/* ==========================================================================
+   Play footer
+   ========================================================================== */
+
+.play-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: .5rem;
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto;
+}
+.play-actions .iconbtn--wide { flex: 1; max-width: 14rem; }
+
+/* ==========================================================================
+   Feedback — toasts, score pops, confetti
+   ========================================================================== */
+
+.toast-slot {
+	position: fixed;
+	top: calc(var(--safe-t) + 4.5rem);
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	pointer-events: none;
+	z-index: 40;
+}
+
+.toast {
+	padding: .5rem 1.1rem;
+	border-radius: var(--radius-pill);
+	background: rgba(11, 13, 18, .82);
+	border: 1px solid var(--border-strong);
+	backdrop-filter: blur(14px);
+	font-size: .8rem;
+	font-weight: 700;
+	letter-spacing: .1em;
+	white-space: nowrap;
+	animation: toast-in .9s ease forwards;
+}
+.toast[data-tone="good"] { color: var(--success); border-color: rgba(43, 217, 124, .4); }
+.toast[data-tone="bad"] { color: var(--danger); border-color: rgba(255, 59, 92, .4); }
+.toast[data-tone="hot"] { color: #FFB03A; border-color: rgba(255, 176, 58, .4); }
+
+.pop {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-family: var(--font-mono);
+	font-weight: 700;
+	font-size: clamp(.9rem, 4vw, 1.2rem);
+	color: var(--text);
+	text-shadow: 0 2px 10px rgba(0, 0, 0, .6);
+	pointer-events: none;
+	z-index: 30;
+	animation: pop-up .7s cubic-bezier(.2, .9, .3, 1) forwards;
+}
+
+.confetti {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 7px;
+	height: 7px;
+	border-radius: 2px;
+	pointer-events: none;
+	z-index: 20;
+	animation: confetti-fly .42s cubic-bezier(.2, .7, .4, 1) forwards;
+}
+
+/* ==========================================================================
+   Overlays
+   ========================================================================== */
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	display: grid;
+	place-items: center;
+	padding: var(--pad);
+	background: rgba(11, 13, 18, .72);
+	backdrop-filter: blur(8px);
+}
+.overlay[hidden] { display: none; }
+
+.overlay__card {
+	width: 100%;
+	max-width: 20rem;
+	display: flex;
+	flex-direction: column;
+	gap: .75rem;
+	padding: var(--pad);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	text-align: center;
+	animation: rise .25s cubic-bezier(.2, .9, .3, 1) both;
+}
+.overlay__card h2 { margin: 0 0 .5rem; letter-spacing: .18em; font-size: 1.1rem; }
+
+.sheet {
+	width: min(34rem, calc(100vw - 2rem));
+	max-height: 82dvh;
+	padding: var(--pad);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	background: #12151C;
+	color: var(--text);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.sheet::backdrop { background: rgba(11, 13, 18, .72); backdrop-filter: blur(6px); }
+.sheet h2 { margin: 0 0 .75rem; font-size: 1.15rem; letter-spacing: .06em; }
+.sheet h3 {
+	margin: 1.4rem 0 .4rem;
+	font-size: .68rem;
+	letter-spacing: .18em;
+	color: var(--text-faint);
+	text-transform: uppercase;
+}
+.sheet p, .sheet li { color: var(--text-dim); font-size: .85rem; line-height: 1.6; margin: .4rem 0; }
+.sheet strong { color: var(--text); }
+.sheet ul { margin: .4rem 0; padding-left: 1.1rem; }
+.sheet kbd {
+	display: inline-block;
+	padding: .05rem .35rem;
+	border: 1px solid var(--border-strong);
+	border-radius: 5px;
+	background: var(--surface);
+	font-family: var(--font-mono);
+	font-size: .75rem;
+	color: var(--text);
+}
+.sheet .btn { margin-top: 1.25rem; }
+
+/* ==========================================================================
+   Game over
+   ========================================================================== */
+
+.over__title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.25rem); letter-spacing: .12em; }
+
+.over__badge {
+	margin: 0;
+	padding: .35rem 1rem;
+	border-radius: var(--radius-pill);
+	background: rgba(255, 176, 58, .14);
+	border: 1px solid rgba(255, 176, 58, .4);
+	color: #FFB03A;
+	font-size: .75rem;
+	letter-spacing: .14em;
+	animation: badge-pop .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.over__badge[hidden] { display: none; }
+
+.over__stats {
+	width: 100%;
+	margin: .5rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	background: var(--border);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	overflow: hidden;
+}
+.over__stats > div {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .7rem 1rem;
+	background: #0E1118;
+}
+.over__stats dt { color: var(--text-dim); font-size: .8rem; }
+.over__stats dd {
+	margin: 0;
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	font-size: 1.05rem;
+	font-weight: 700;
+}
+
+/* ==========================================================================
+   Tuned-config markers
+   ========================================================================== */
+
+.hud__tuned {
+	padding: .1rem .4rem;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 176, 58, .5);
+	background: rgba(255, 176, 58, .12);
+	color: #FFB03A;
+	font-size: .55rem;
+	font-weight: 700;
+	letter-spacing: .14em;
+}
+
+.start__tuned {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+	color: #FFB03A;
+	font-size: .7rem;
+	letter-spacing: .04em;
+}
+
+/* ==========================================================================
+   Tutorial widgets
+   ========================================================================== */
+
+.stepper { display: flex; gap: 5px; align-items: center; }
+.stepper__dot {
+	width: 7px; height: 7px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .18);
+	transition: background .25s ease, transform .25s ease;
+}
+.stepper__dot[data-state="done"] { background: var(--text-dim); }
+.stepper__dot[data-state="now"] { background: var(--text); transform: scale(1.35); }
+
+.btn--next { width: auto; min-width: 12rem; }
+
+/* Stage 4 — additive mixing */
+.mixer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--gap);
+	width: 100%;
+	max-width: 34rem;
+	margin: auto;
+}
+.mixer__chips { display: flex; gap: var(--gap); }
+
+.chip {
+	width: clamp(64px, 20vw, 86px);
+	aspect-ratio: 1;
+	border-radius: var(--radius-tile);
+	border: 2px solid rgba(255, 255, 255, .28);
+	background: rgba(255, 255, 255, .04);
+	color: var(--text-dim);
+	font-size: 1.35rem;
+	font-weight: 700;
+	transition: transform .14s cubic-bezier(.2, .9, .3, 1), box-shadow .18s ease,
+	            background .2s ease, color .2s ease;
+}
+.chip:active { transform: scale(.95); }
+.chip--r[aria-pressed="true"] { background: var(--r); box-shadow: 0 0 28px -6px var(--r); }
+.chip--g[aria-pressed="true"] { background: var(--g); box-shadow: 0 0 28px -6px var(--g); }
+.chip--b[aria-pressed="true"] { background: var(--b); box-shadow: 0 0 28px -6px var(--b); }
+.chip[aria-pressed="true"] { color: #0B0D12; border-color: rgba(255, 255, 255, .55); }
+
+.mixer__result {
+	width: min(100%, 17rem);
+	min-height: clamp(84px, 18vh, 116px);
+	display: grid;
+	place-items: center;
+	border-radius: var(--radius-card);
+	border: 1px solid var(--border);
+	background: var(--mix, #000);
+	color: var(--mixInk, var(--text-dim));
+	font-weight: 700;
+	letter-spacing: .16em;
+	font-size: .9rem;
+	transition: background .25s ease, color .25s ease, box-shadow .25s ease;
+	box-shadow: 0 0 44px -14px var(--mix, transparent);
+}
+
+/* Stage 5 — the 0-255 scale */
+.sliders {
+	display: flex;
+	flex-direction: column;
+	gap: .7rem;
+	width: 100%;
+	max-width: 26rem;
+	margin: auto;
+}
+.sliders__swatch {
+	height: clamp(72px, 16vh, 104px);
+	border-radius: var(--radius-card);
+	border: 1px solid var(--border);
+	background: var(--mix, #000);
+	box-shadow: 0 0 44px -14px var(--mix, transparent);
+	transition: background .12s linear, box-shadow .2s ease;
+}
+.slider { display: flex; align-items: center; gap: .7rem; }
+.slider__key { width: 1.1rem; font-weight: 700; font-family: var(--font-mono); }
+.slider__val {
+	width: 2.6rem;
+	text-align: right;
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	font-size: .85rem;
+	color: var(--text-dim);
+}
+.slider__input {
+	flex: 1;
+	min-width: 0;
+	height: 30px;                 /* comfortable touch target */
+	accent-color: var(--text);
+	background: transparent;
+}
+.slider__input--r { accent-color: var(--r); }
+.slider__input--g { accent-color: var(--g); }
+.slider__input--b { accent-color: var(--b); }
+
+/* ==========================================================================
+   Settings sheet
+   ========================================================================== */
+
+.setting {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .7rem 0;
+	border-bottom: 1px solid var(--border);
+	font-size: .9rem;
+	cursor: pointer;
+}
+.setting span { display: flex; flex-direction: column; gap: .15rem; }
+.setting em {
+	font-style: normal;
+	color: var(--text-faint);
+	font-size: .72rem;
+	letter-spacing: .01em;
+}
+.setting__note { color: #FFB03A; font-size: .75rem; }
+
+.switch {
+	appearance: none;
+	flex: none;
+	width: 44px; height: 26px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, .12);
+	border: 1px solid var(--border);
+	position: relative;
+	cursor: pointer;
+	transition: background .2s ease;
+}
+.switch::after {
+	content: "";
+	position: absolute;
+	top: 2px; left: 2px;
+	width: 20px; height: 20px;
+	border-radius: 50%;
+	background: var(--text);
+	transition: transform .2s cubic-bezier(.2, .9, .3, 1);
+}
+.switch:checked { background: var(--g); }
+.switch:checked::after { transform: translateX(18px); }
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes rise {
+	from { opacity: 0; transform: translateY(14px); }
+	to { opacity: 1; transform: none; }
+}
+
+@keyframes tile-in {
+	from { opacity: 0; transform: scale(.85); }
+	to { opacity: 1; transform: none; }
+}
+
+@keyframes tile-win {
+	0% { transform: none; }
+	40% { transform: scale(1.14); box-shadow: 0 0 0 10px rgba(255, 255, 255, .16), 0 0 50px -4px var(--tile); }
+	100% { transform: scale(1.06); box-shadow: 0 0 0 3px rgba(255, 255, 255, .5), 0 0 40px -8px var(--tile); }
+}
+
+@keyframes tile-miss {
+	0%, 100% { transform: translateX(0); }
+	15% { transform: translateX(-7px); }
+	35% { transform: translateX(6px); }
+	55% { transform: translateX(-4px); }
+	75% { transform: translateX(3px); }
+}
+
+@keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@keyframes toast-in {
+	0% { opacity: 0; transform: translateY(-10px) scale(.94); }
+	14%, 74% { opacity: 1; transform: none; }
+	100% { opacity: 0; transform: translateY(-6px); }
+}
+
+@keyframes pop-up {
+	0% { opacity: 0; transform: translate(-50%, -50%) scale(.7); }
+	22% { opacity: 1; transform: translate(-50%, -80%) scale(1.1); }
+	100% { opacity: 0; transform: translate(-50%, -190%) scale(1); }
+}
+
+@keyframes confetti-fly {
+	0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+	100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4) rotate(var(--rot)); }
+}
+
+@keyframes badge-pop {
+	from { opacity: 0; transform: scale(.7); }
+	to { opacity: 1; transform: none; }
+}
+
+@keyframes strip-in {
+	from { opacity: 0; transform: translateY(5px) scale(.96); }
+	to { opacity: 1; transform: none; }
+}
+
+@keyframes peek-nudge {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 58, 0); }
+	40% { box-shadow: 0 0 0 5px rgba(255, 176, 58, .16); }
+}
+
+/* ==========================================================================
+   Tuning Lab — developer-only, lazily loaded
+   ========================================================================== */
+
+.screen--lab {
+	gap: 1rem;
+	/* A definite height, not just .screen's min-height. Without it the element
+	   grows to fit its content, so scrollHeight === clientHeight: it is a
+	   scroll container with nothing to scroll, and overscroll-behavior:contain
+	   then blocks the wheel from chaining to the document. Result: only the
+	   document scrollbar worked. With a bounded height the lab scrolls itself,
+	   and contain does its real job of not scrolling the page behind it. */
+	height: 100dvh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.lab { width: 100%; max-width: 44rem; margin: 0 auto; }
+
+.lab__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: .25rem;
+}
+.lab__title { margin: 0; font-size: 1.1rem; letter-spacing: .14em; }
+.lab__sub { margin: 0; color: var(--text-faint); font-size: .7rem; line-height: 1.5; }
+
+.lab__section { margin-top: 1.5rem; }
+.lab__section > h3 {
+	margin: 0 0 .5rem;
+	font-size: .65rem;
+	letter-spacing: .2em;
+	color: var(--text-faint);
+	text-transform: uppercase;
+}
+
+.lab__grid { display: grid; gap: .1rem; }
+@media (min-width: 40rem) { .lab__grid { grid-template-columns: 1fr 1fr; gap: .1rem 1.5rem; } }
+
+.field {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+	gap: .2rem .75rem;
+	padding: .45rem 0;
+	border-bottom: 1px solid var(--border);
+}
+.field__label { font-size: .8rem; }
+.field__label[data-changed="true"]::after {
+	content: "modified";
+	margin-left: .5rem;
+	padding: .05rem .3rem;
+	border-radius: 4px;
+	background: rgba(255, 176, 58, .15);
+	color: #FFB03A;
+	font-size: .55rem;
+	letter-spacing: .1em;
+}
+.field__help { grid-column: 1 / -1; color: var(--text-faint); font-size: .68rem; line-height: 1.45; }
+.field__row { display: flex; align-items: center; gap: .5rem; }
+.field input[type="number"] {
+	width: 5.2rem;
+	padding: .35rem .5rem;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	color: var(--text);
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	font-size: .82rem;
+}
+.field input[type="number"]:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+
+.lab__tierhead {
+	margin: 1rem 0 .25rem;
+	font-family: var(--font-mono);
+	font-size: .75rem;
+	letter-spacing: .14em;
+	color: var(--text);
+}
+.lab__pressure { font-size: .68rem; color: var(--text-faint); }
+.lab__pressure[data-tone="warn"] { color: #FFB03A; }
+.lab__pressure[data-tone="bad"] { color: var(--danger); }
+
+.lab__actions {
+	position: sticky;
+	bottom: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+	padding: .75rem 0 calc(.25rem + var(--safe-b));
+	margin-top: 1.5rem;
+	background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+.lab__actions .btn { width: auto; flex: 1 1 8rem; min-height: 44px; font-size: .72rem; padding: .6rem .8rem; }
+
+.lab__warn {
+	margin: .75rem 0 0;
+	padding: .6rem .8rem;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 176, 58, .4);
+	background: rgba(255, 176, 58, .1);
+	color: #FFB03A;
+	font-size: .72rem;
+	line-height: 1.55;
+}
+.lab__warn[hidden] { display: none; }
+.lab__warn ul { margin: .3rem 0 0; padding-left: 1.1rem; }
+.lab__warn--bad { border-color: rgba(255, 59, 92, .45); background: rgba(255, 59, 92, .1); color: #FF8296; }
+.lab__ok { color: var(--success); }
+
+.lab__summary { overflow-x: auto; }
+.lab__summary table { border-collapse: collapse; width: 100%; font-size: .68rem; }
+.lab__summary th, .lab__summary td {
+	padding: .3rem .45rem;
+	text-align: right;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--border);
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+}
+.lab__summary th { color: var(--text-faint); font-weight: 500; letter-spacing: .06em; }
+.lab__summary td:first-child, .lab__summary th:first-child { text-align: left; }
+
+.lab__verdict {
+	display: flex;
+	align-items: baseline;
+	gap: .6rem;
+	flex-wrap: wrap;
+	margin: .75rem 0 0;
+	font-size: .8rem;
+	color: var(--text-dim);
+}
+.lab__verdict strong { font-size: 1rem; letter-spacing: .14em; color: var(--text); }
+
+.lab__sample {
+	display: grid;
+	grid-template-columns: repeat(var(--cols, 3), 1fr);
+	gap: .4rem;
+	width: min(100%, 15rem);
+	margin-top: .6rem;
+}
+.lab__sample i {
+	display: block;
+	aspect-ratio: 1;
+	border-radius: 22%;
+	border: 2px solid rgba(255, 255, 255, .28);
+	background: var(--tile);
+}
+.lab__sample i[data-target="true"] { box-shadow: 0 0 0 2px var(--text); }
+
+.lab__export {
+	width: 100%;
+	min-height: 9rem;
+	margin-top: .5rem;
+	padding: .6rem;
+	background: #0E1118;
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	color: var(--text-dim);
+	font-family: var(--font-mono);
+	font-size: .68rem;
+	line-height: 1.5;
+	resize: vertical;
+}
+
+/* ==========================================================================
+   Landscape — stop the board being crushed on a phone held sideways
+   ========================================================================== */
+
+@media (orientation: landscape) and (max-height: 560px) {
+	/* A definite height is what lets the board size itself from the row it sits
+	   in, rather than from the viewport width. */
+	/* The tutorial reuses .screen--play for its look but has extra widgets that
+	   would collide with these fixed grid areas — it stays a scrolling column. */
+	.screen--learn { overflow-y: auto; }
+
+	.screen--play:not(.screen--learn) {
+		display: grid;
+		height: 100dvh;
+		overflow: hidden;
+		/* The readout column gets a hard floor: a 1-row EASY board would
+		   otherwise stretch to the full width and collapse it to nothing. */
+		grid-template-columns: minmax(11rem, 1fr) auto;
+		grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+		column-gap: var(--gap);
+		row-gap: .5rem;
+	}
+	.screen--play:not(.screen--learn) .hud          { grid-area: 1 / 1 / 2 / 3; max-width: none; }
+	.screen--play:not(.screen--learn) .timer        { grid-area: 2 / 1 / 3 / 3; max-width: none; }
+	.screen--play:not(.screen--learn) .target       { grid-area: 3 / 1 / 4 / 2; align-self: center; }
+	.screen--play:not(.screen--learn) .strip        { grid-area: 4 / 1 / 5 / 2; }
+	.screen--play:not(.screen--learn) .play-actions { grid-area: 5 / 1 / 6 / 2; }
+	/* Board spans all three content rows in the right-hand column: its height is
+	   definite, aspect-ratio derives the width, and the auto column follows. */
+	.screen--play:not(.screen--learn) .board {
+		grid-area: 3 / 2 / 6 / 3;
+		aspect-ratio: var(--cols, 3) / var(--rows, 3);
+		height: 100%;
+		width: auto;
+		max-width: 52vw;
+		align-content: center;
+		margin: 0;
+	}
+	.target__card { min-height: 64px; }
+	.target__label { display: none; }
+}
+
+/* ==========================================================================
+   Reduced motion — kill the movement, keep every state change legible
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: .01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .01ms !important;
+	}
+	/* The timer bar is information, not decoration — keep it draining, just
+	   without easing tricks. */
+	.timer__bar--running {
+		animation: drain linear forwards !important;
+		animation-duration: var(--timer-duration, 10s) !important;
+	}
+	.toast { animation: none !important; opacity: 1; }
+	.confetti { display: none; }
+	.tile:hover { transform: none; }
+}
