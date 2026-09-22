@@ -2,138 +2,320 @@
 <html lang="en">
 
 <head>
-	<!-- Required meta tags -->
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<meta name="description"
-		content="The RGBs Game is a fun, enjoyable & endless PWA game that tests your skills on mastery of colors.">
-	<meta name="keywords" content="RGBS, HTML, CSS, JavaScript, Progressier">
+		content="The RGBs Game is a fast, endless color-matching game. Read an RGB value, spot the color. Easy to learn, hard to master.">
+	<meta name="keywords" content="RGB, color game, color matching, PWA game, puzzle">
 	<meta name="author" content="Victor Allen">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="theme-color" content="#0B0D12">
 
 	<title>The RGBs Game</title>
+
+	<link rel="manifest" href="manifest.webmanifest">
 	<link rel="icon" href="assets/images/logo.png">
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-		integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-	<!-- Main CSS -->
-	<link rel="stylesheet" type="text/css" href="RGBs.css">
-	<!-- Google Font -->
-	<link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
-	<!-- Animate css -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-	<!-- Progressier script -->
-	<script src="https://progressier.com/client/script.js?id=fDtk4J8dNLoq111WQdol"></script>
-	<!-- AdSense code -->
-	<script data-ad-client="ca-pub-8849225652045403" async
-		src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+	<link rel="apple-touch-icon" href="assets/images/icon-192.png">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="RGBs">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
+	<link rel="stylesheet" href="css/rgbs.css">
 </head>
 
-<body>
-	<div class="sticky-top">
-		<div class="game-header">
-			<h1>
-				<p class="animate__animated animate__backInDown">The RBGs Game</p>
-			</h1>
-		</div>
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<div class="navbar-brand d-flex justify-content-between">
-				<span id="colorDisplay"></span>
+<body data-screen="start">
+	<div class="bg-wash" aria-hidden="true"></div>
+
+	<!-- ============================================ START ============================================ -->
+	<main class="screen screen--start" id="screen-start">
+		<div class="start__inner">
+			<svg class="logo logo--lg" viewBox="0 0 48 48" aria-hidden="true">
+				<g class="logo__spin">
+					<circle cx="24" cy="16.5" r="13" fill="var(--r)" />
+					<circle cx="16.5" cy="29.5" r="13" fill="var(--g)" />
+					<circle cx="31.5" cy="29.5" r="13" fill="var(--b)" />
+				</g>
+			</svg>
+
+			<h1 class="start__title">THE RGBs GAME</h1>
+			<p class="start__tagline">Master the colors.<br>Can you spot the difference?</p>
+
+			<div class="pillset" role="radiogroup" aria-label="Game mode" id="modeGroup">
+				<button type="button" class="pill" role="radio" data-mode="arcade" aria-checked="true">ARCADE</button>
+				<button type="button" class="pill" role="radio" data-mode="steady" aria-checked="false">STEADY</button>
+				<button type="button" class="pill" role="radio" data-mode="zen" aria-checked="false">ZEN</button>
 			</div>
+			<p class="pillset__hint" id="modeHint"></p>
 
-			<!-- Toggle Button -->
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
-				aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
+			<div class="pillset" role="radiogroup" aria-label="Difficulty" id="diffGroup">
+				<button type="button" class="pill" role="radio" data-diff="easy" aria-checked="false">EASY</button>
+				<button type="button" class="pill" role="radio" data-diff="medium" aria-checked="true">MEDIUM</button>
+				<button type="button" class="pill" role="radio" data-diff="hard" aria-checked="false">HARD</button>
+			</div>
+			<p class="pillset__hint" id="diffHint"></p>
 
-			<!-- Items in Navbar -->
-			<div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-				<!-- Elememts to the Left -->
-				<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-				</ul>
+			<button type="button" class="btn btn--primary btn--play" id="playBtn">PLAY</button>
 
-				<!-- Elements to the Right -->
-				<div class="btn-group" role="group" aria-label="modes">
-					<button type="button" class="btn btn-outline-light mode">Easy</button>
-					<button type="button" class="btn btn-outline-light mode active">Medium</button>
-					<button type="button" class="btn btn-outline-light mode">Hard</button>
+			<p class="start__best">BEST <strong id="startBest">0</strong></p>
+
+			<div class="start__actions">
+				<button type="button" class="iconbtn" id="soundBtnStart" aria-pressed="true">
+					<span class="iconbtn__glyph" data-sound-glyph>&#128266;</span>
+					<span class="sr-only">Sound</span>
+				</button>
+				<button type="button" class="iconbtn" id="helpBtn" aria-label="How to play">?</button>
+				<button type="button" class="iconbtn" id="settingsBtn" aria-label="Settings">&#9881;</button>
+				<button type="button" class="iconbtn iconbtn--wide" id="installBtn" hidden>&#8681; INSTALL</button>
+			</div>
+			<p class="start__tuned" id="startTuned" hidden>
+				Custom rules active &middot; scores not recorded
+				<button type="button" class="linkbtn" id="startResetTuning">reset</button>
+			</p>
+		</div>
+	</main>
+
+	<!-- ============================================ PLAY ============================================= -->
+	<main class="screen screen--play" id="screen-play" hidden>
+		<header class="hud">
+			<div class="hud__row">
+				<div class="hud__group">
+					<svg class="logo logo--sm" viewBox="0 0 48 48" aria-hidden="true">
+						<g class="logo__spin">
+							<circle cx="24" cy="16.5" r="13" fill="var(--r)" />
+							<circle cx="16.5" cy="29.5" r="13" fill="var(--g)" />
+							<circle cx="31.5" cy="29.5" r="13" fill="var(--b)" />
+						</g>
+					</svg>
+					<span class="hud__lvl">LVL <strong id="hudLevel">1</strong></span>
+					<span class="hud__lives" id="hudLives"></span>
+					<span class="hud__tuned" id="hudTuned" hidden title="Custom rules are active — scores are not recorded">TUNED</span>
+				</div>
+				<div class="hud__group hud__group--end">
+					<span class="hud__stat"><span class="hud__key">SCORE</span><strong id="hudScore">0</strong></span>
+					<span class="hud__stat"><span class="hud__key">BEST</span><strong id="hudBest">0</strong></span>
 				</div>
 			</div>
-		</nav>
-		<!-- Message Bar -->
-		<div class="stripe">
-			<span id="message"></span>
-			<!-- Reset Audio -->
-			<audio id="resetAudio">
-				<source src="./assets/audio/positive-beeps.wav" type="audio/wav">
-			</audio>
-			<!-- Positive Audio -->
-			<audio id="positiveAudio">
-				<source src="./assets/audio/beep-good.ogg" type="audio/ogg">
-			</audio>
-			<!-- Negative Audio -->
-			<audio id="negativeAudio">
-				<source src="./assets/audio/negative-beeps.wav" type="audio/wav">
-			</audio>
+			<div class="hud__row hud__row--sub">
+				<span class="hud__streak" id="hudStreak" data-hot="false">&#128293; <strong>0</strong></span>
+				<span class="hud__mult" id="hudMult">&times;1</span>
+			</div>
+		</header>
+
+		<div class="timer" id="timer" hidden>
+			<div class="timer__bar" id="timerBar"></div>
 		</div>
 
-		<div class="d-flex justify-content-end">
-			<button type="button" class="btn btn-info animate__animated animate__backInRight cool-gradient" id="reset">
-				New Colors
+		<section class="target">
+			<p class="target__label">MATCH THIS COLOR</p>
+			<div class="target__card" id="targetCard">
+				<div class="target__readout">
+					<!-- Kept on one line so textContent is exactly "rgb(r, g, b)". -->
+					<span class="target__rgb" id="targetRgb">rgb(<b class="ch ch--r" id="targetR">0</b>, <b class="ch ch--g" id="targetG">0</b>, <b class="ch ch--b" id="targetB">0</b>)</span>
+					<span class="target__hex" id="targetHex">#000000</span>
+					<span class="bars" id="targetBars" aria-hidden="true">
+						<i class="bars__track"><i class="bars__fill bars__fill--r" id="barR"></i></i>
+						<i class="bars__track"><i class="bars__fill bars__fill--g" id="barG"></i></i>
+						<i class="bars__track"><i class="bars__fill bars__fill--b" id="barB"></i></i>
+					</span>
+				</div>
+			</div>
+			<button type="button" class="btn btn--ghost btn--peek" id="peekBtn">
+				<span class="btn__eye" aria-hidden="true">&#128065;</span>
+				<span class="btn__peekLabel">PEEK</span>
+				<span class="btn__note" id="peekNote">show the color &middot; half points</span>
 			</button>
+		</section>
+
+		<!-- Feedback lands here rather than floating: it fills the band between
+		     the target and the board, and it is the same slot the tutorial's
+		     coach line uses. -->
+		<p class="strip" id="strip" aria-hidden="true"></p>
+
+		<div class="board" id="board" role="group" aria-label="Color choices"></div>
+
+		<footer class="play-actions">
+			<button type="button" class="iconbtn" id="pauseBtn" aria-label="Pause">&#10073;&#10073;</button>
+			<button type="button" class="iconbtn iconbtn--wide" id="skipBtn">NEW COLORS</button>
+			<button type="button" class="iconbtn" id="soundBtnPlay" aria-pressed="true">
+				<span class="iconbtn__glyph" data-sound-glyph>&#128266;</span>
+				<span class="sr-only">Sound</span>
+			</button>
+		</footer>
+
+		<div class="toast-slot" id="toastSlot" aria-hidden="true"></div>
+		<p class="sr-only" id="liveRegion" aria-live="polite" role="status"></p>
+	</main>
+
+	<!-- ============================================ OVER ============================================= -->
+	<main class="screen screen--over" id="screen-over" hidden>
+		<div class="over__inner">
+			<h2 class="over__title" id="overTitle">GAME OVER</h2>
+			<p class="over__badge" id="overBadge" hidden>&#11088; NEW BEST</p>
+
+			<dl class="over__stats">
+				<div><dt>Score</dt><dd id="overScore">0</dd></div>
+				<div><dt>Best</dt><dd id="overBest">0</dd></div>
+				<div><dt>Longest streak</dt><dd id="overStreak">0</dd></div>
+				<div><dt>Colors matched</dt><dd id="overMatched">0</dd></div>
+				<div><dt>Level reached</dt><dd id="overLevel">1</dd></div>
+			</dl>
+
+			<button type="button" class="btn btn--primary" id="againBtn">PLAY AGAIN</button>
+			<button type="button" class="btn btn--ghost" id="changeBtn">CHANGE MODE</button>
+		</div>
+	</main>
+
+	<!-- ============================================ LEARN ============================================ -->
+	<!-- Same HUD, same tiles, same animations as the game. The tutorial is the
+	     game with the rules introduced one at a time, not a separate app. -->
+	<main class="screen screen--play screen--learn" id="screen-learn" hidden>
+		<header class="hud">
+			<div class="hud__row">
+				<div class="hud__group">
+					<svg class="logo logo--sm" viewBox="0 0 48 48" aria-hidden="true">
+						<g class="logo__spin">
+							<circle cx="24" cy="16.5" r="13" fill="var(--r)" />
+							<circle cx="16.5" cy="29.5" r="13" fill="var(--g)" />
+							<circle cx="31.5" cy="29.5" r="13" fill="var(--b)" />
+						</g>
+					</svg>
+					<span class="hud__lvl">LEARN</span>
+				</div>
+				<div class="hud__group hud__group--end">
+					<span class="stepper" id="learnStepper" aria-label="Tutorial progress"></span>
+					<button type="button" class="linkbtn" id="learnSkip">SKIP</button>
+				</div>
+			</div>
+		</header>
+
+		<section class="target">
+			<p class="target__label" id="learnLabel">MATCH THIS COLOR</p>
+			<div class="target__card" id="learnCard">
+				<div class="target__readout">
+					<span class="target__rgb" id="learnRgb">RED</span>
+					<span class="target__hex" id="learnHex"></span>
+					<span class="bars" id="learnBars" aria-hidden="true">
+						<i class="bars__track"><i class="bars__fill bars__fill--r" id="learnBarR"></i></i>
+						<i class="bars__track"><i class="bars__fill bars__fill--g" id="learnBarG"></i></i>
+						<i class="bars__track"><i class="bars__fill bars__fill--b" id="learnBarB"></i></i>
+					</span>
+				</div>
+			</div>
+		</section>
+
+		<p class="strip strip--coach" id="learnStrip" aria-live="polite"></p>
+
+		<!-- Stage 1-3 and 6 use the real board. -->
+		<div class="board" id="learnBoard" role="group" aria-label="Color choices"></div>
+
+		<!-- Stage 4: additive mixing. -->
+		<div class="mixer" id="learnMixer" hidden>
+			<div class="mixer__chips">
+				<button type="button" class="chip chip--r" data-ch="0" aria-pressed="false">R</button>
+				<button type="button" class="chip chip--g" data-ch="1" aria-pressed="false">G</button>
+				<button type="button" class="chip chip--b" data-ch="2" aria-pressed="false">B</button>
+			</div>
+			<div class="mixer__result" id="mixerResult"><span id="mixerName">OFF</span></div>
+		</div>
+
+		<!-- Stage 5: the 0-255 scale. -->
+		<div class="sliders" id="learnSliders" hidden>
+			<div class="sliders__swatch" id="sliderSwatch"></div>
+			<label class="slider"><span class="slider__key ch--r">R</span>
+				<input type="range" min="0" max="255" value="0" id="slR" class="slider__input slider__input--r">
+				<output class="slider__val" id="slROut">0</output></label>
+			<label class="slider"><span class="slider__key ch--g">G</span>
+				<input type="range" min="0" max="255" value="0" id="slG" class="slider__input slider__input--g">
+				<output class="slider__val" id="slGOut">0</output></label>
+			<label class="slider"><span class="slider__key ch--b">B</span>
+				<input type="range" min="0" max="255" value="0" id="slB" class="slider__input slider__input--b">
+				<output class="slider__val" id="slBOut">0</output></label>
+		</div>
+
+		<footer class="play-actions">
+			<button type="button" class="btn btn--primary btn--next" id="learnNext" hidden>CONTINUE</button>
+		</footer>
+	</main>
+
+	<!-- ============================================= LAB ============================================= -->
+	<!-- Filled by js/lab.js, which is lazily imported and deliberately kept out
+	     of the service worker precache: players never download it. -->
+	<main class="screen screen--lab" id="screen-lab" hidden></main>
+
+	<!-- =========================================== OVERLAYS ========================================== -->
+	<div class="overlay" id="pauseOverlay" hidden>
+		<div class="overlay__card">
+			<h2>PAUSED</h2>
+			<button type="button" class="btn btn--primary" id="resumeBtn">RESUME</button>
+			<button type="button" class="btn btn--ghost" id="quitBtn">END SESSION</button>
 		</div>
 	</div>
-	<!-- Sqaures -->
-	<div class="container">
-		<div id="wrapper">
-			<div class="row">
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-				<div class="col-4 col-md-4 d-flex justify-content-center">
-					<div class="square"></div>
-				</div>
-			</div>
-		</div>
-	</div>
 
-	<!-- JQuery -->
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-	</script>
-	<!-- Bootstrap JS Bundle -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous">
-	</script>
-	<!-- Animations js -->
-	<script type="text/javascript" src="animations.js"></script>
-	<!-- Main JS -->
-	<script type="text/javascript" src="RGBs.js"></script>
+	<dialog class="sheet" id="helpSheet">
+		<h2>How to play</h2>
+		<p>You are shown an RGB value. Find the tile that <em>is</em> that color.</p>
+		<p>The color itself stays hidden while you guess — tap <strong>PEEK</strong> to flash it
+			for half a second, at the cost of <span id="helpPeek">50%</span> of that round&rsquo;s points.</p>
+
+		<h3>Modes</h3>
+		<ul>
+			<li><strong>ARCADE</strong> — <span id="helpLives">3</span> lives and a countdown that tightens as you level up.</li>
+			<li><strong>STEADY</strong> — same lives, no clock. Take your time.</li>
+			<li><strong>ZEN</strong> — no lives, no clock. Keep guessing; wrong guesses only cost points.</li>
+		</ul>
+
+		<h3>Difficulty</h3>
+		<ul>
+			<li><strong>EASY</strong> — <span id="helpTilesEasy">3</span> tiles, obviously different colors, lightness cues allowed.</li>
+			<li><strong>MEDIUM</strong> — <span id="helpTilesMedium">6</span> tiles, noticeably closer colors.</li>
+			<li><strong>HARD</strong> — <span id="helpTilesHard">9</span> tiles, colors separated mostly by hue rather than brightness.</li>
+		</ul>
+		<p>Every level narrows the gap between the colors. Get one wrong and it widens again,
+			so the game settles at whatever you can actually see.</p>
+
+		<h3>Scoring</h3>
+		<p><span id="helpBase">100</span> points base, multiplied by difficulty
+			(<span id="helpMults">&times;1 / &times;1.5 / &times;2</span>) and by your
+			streak (up to <span id="helpMaxMult">&times;5</span>), plus a time bonus in ARCADE.</p>
+
+		<h3>Keyboard</h3>
+		<p><kbd>1</kbd>&ndash;<kbd>9</kbd> pick a tile &middot; arrows move &middot; <kbd>Enter</kbd> select
+			&middot; <kbd>P</kbd> peek &middot; <kbd>N</kbd> new colors &middot; <kbd>M</kbd> mute
+			&middot; <kbd>Esc</kbd> pause</p>
+
+		<button type="button" class="btn btn--primary" id="helpCloseBtn">GOT IT</button>
+	</dialog>
+
+	<dialog class="sheet" id="settingsSheet">
+		<h2>Settings</h2>
+		<label class="setting"><span>Sound</span>
+			<input type="checkbox" id="setSound" class="switch"></label>
+		<label class="setting"><span>Vibration<em>On supported devices</em></span>
+			<input type="checkbox" id="setHaptics" class="switch"></label>
+		<label class="setting"><span>Channel bars<em>R/G/B intensity under the target value</em></span>
+			<input type="checkbox" id="setBars" class="switch"></label>
+
+		<h3>Tutorial</h3>
+		<button type="button" class="btn btn--ghost" id="setReplay">REPLAY RGB TUTORIAL</button>
+
+		<div id="setLabRow" hidden>
+			<h3>Developer</h3>
+			<p class="setting__note" id="setTunedNote" hidden>Custom rules are active. Scores are not recorded while tuning.</p>
+			<button type="button" class="btn btn--ghost" id="setLab">GAME TUNING LAB</button>
+		</div>
+
+		<button type="button" class="btn btn--primary" id="settingsCloseBtn">DONE</button>
+	</dialog>
+
+	<audio id="audioCorrect" preload="none"><source src="assets/audio/beep-good.ogg" type="audio/ogg"></audio>
+	<audio id="audioWrong" preload="none"><source src="assets/audio/negative-beeps.wav" type="audio/wav"></audio>
+	<audio id="audioRound" preload="none"><source src="assets/audio/positive-beeps.wav" type="audio/wav"></audio>
+
+	<script type="module" src="js/main.js"></script>
 </body>
 
 </html>

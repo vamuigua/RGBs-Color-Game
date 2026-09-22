@@ -1,0 +1,34 @@
+# Dependencies (the project has none, but keep contributors safe)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Secrets and local environment — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Netlify local state
+.netlify/
+
+# Local build/test output
+.playwright-mcp/
+playwright-report/
+test-results/
+shot-*.png
+*.log
+npm-debug.log*
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor — keep the shared colour settings that are already tracked
+.idea/
+*.swp
+.vscode/*
+!.vscode/settings.json

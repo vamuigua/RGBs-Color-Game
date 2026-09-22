@@ -1,0 +1,35 @@
+{
+	"name": "The RGBs Game",
+	"short_name": "RGBs",
+	"description": "Read an RGB value, spot the color. A fast, endless color-matching game.",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"display_override": ["standalone", "minimal-ui"],
+	"orientation": "portrait",
+	"background_color": "#0B0D12",
+	"theme_color": "#0B0D12",
+	"categories": ["games", "education"],
+	"lang": "en",
+	"dir": "ltr",
+	"icons": [
+		{
+			"src": "assets/images/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "assets/images/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "assets/images/icon-maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	]
+}
