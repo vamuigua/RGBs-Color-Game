@@ -291,7 +291,10 @@ function onMixChange(silent) {
 			say('That is every combination. <b>Nice.</b>', 'good');
 			showNext('NEXT: THE NUMBERS');
 		} else {
-			setTimeout(() => { if (stage === 3) say(askMix()); }, 1100);
+			// mixStep is re-checked inside the timeout, not just captured by it: a fast
+			// player can finish the next mix before this fires, pushing mixStep past the
+			// end of MIXES, and askMix() would then read .name off undefined.
+			setTimeout(() => { if (stage === 3 && mixStep < MIXES.length) say(askMix()); }, 1100);
 		}
 	}
 }
