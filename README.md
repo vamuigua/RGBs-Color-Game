@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c3b9817a-7ad4-4f29-b540-06dbc1f9e8e6/deploy-status)](https://app.netlify.com/sites/rgbs/deploys)
 
-The RGBs Game is a fun, enjoyable & endless PWA game that tests your skills on mastery of colors.
+The RGBs Game is a fun, enjoyable & endless browser game that tests your skills on mastery of colors.
 
 ![App screenshot](assets/images/screenshot.png)
 
@@ -24,7 +24,6 @@ The RGBs Game is a fun, enjoyable & endless PWA game that tests your skills on m
 - HTML
 - CSS
 - Vanilla Javascript
-- Progressier
 
 ## Authors
 
@@ -33,7 +32,3 @@ The RGBs Game is a fun, enjoyable & endless PWA game that tests your skills on m
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-- **Progressier, for seamless PWA service setup** - [Visit site](https://progressier.com/)
